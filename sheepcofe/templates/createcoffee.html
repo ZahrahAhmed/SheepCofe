@@ -2,10 +2,72 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <form action="{% url 'sheepcofe:createcoffee' %}" method="post">
-      {% csrf_token %}
-      {{form|crispy}}
+	<form action="{% url 'sheepcofe:createcoffee' %}" method="post">
+	    {% csrf_token %}
+	    {{form|crispy}}
 
-      <input class = "btn btn-primary" type="submit" value="Create Coffee">
-    </form>
+	    <h3>Total:<span id="total">0.000</span> KWD</h3>
+	    <input class = "btn btn-primary" type="submit" value="Create Coffee">
+	</form>
+
+	<script>
+	function update_price(){
+		var bean = document.getElementById("id_bean");
+		var bean_id = bean[bean.selectedIndex].value;
+		console.log(bean_id);
+
+		var roast = document.getElementById("id_roast");
+		var roast_id = roast[roast.selectedIndex].value;
+		console.log(roast_id);
+
+		var espresso_shots = document.getElementById("id_espresso_shots");
+		var espresso_shots_ammount = espresso_shots.value;
+		console.log(espresso_shots_ammount);
+
+		var milk = document.getElementById('id_steamed_milk');
+		var milk_value = milk.checked;
+		console.log(milk_value);
+
+		var powders = document.getElementById("id_powders");
+		var selected_powders = [];
+		for (var i = 0; i < powders.length; i++)
+		{
+			if (powders.options[i].selected)
+				{
+					selected_powders.push(powders.options[i].value);
+				}
+		}
+		console.log(selected_powders);
+
+		var syrups = document.getElementById("id_syrups");
+		var selected_syrups = [];
+		for (var i = 0; i < syrups.length; i++)
+		{
+			if (syrups.options[i].selected)
+				{
+					selected_syrups.push(syrups.options[i].value);
+				}
+		}
+		console.log(selected_syrups);
+
+		$.ajax({
+			type: 'GET',
+			url: '{% url "sheepcofe:price" %}',
+			data: {
+				bean: bean_id,
+				roast: roast_id,
+				espresso_shots: espresso_shots_ammount,
+				milk: milk_value,
+				powders: JSON.stringify(selected_powders),
+				syrups: JSON.stringify(selected_syrups)
+			},
+			error: function() {
+				console.log('There was an error connecting');
+			},
+			success: function(data) {
+				document.getElementById('total').innerHTML=data;
+			}
+		});
+	}
+</script>
 {% endblock %}
